@@ -20,7 +20,9 @@ class DialogBox extends StatelessWidget {
             TextField(
               controller: controller,
               decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: "Add New Task"
+                border: OutlineInputBorder(), hintText: "Add New Task", hintStyle: TextStyle(
+                  color: Colors.white
+                )
               ),
             ),
             Row(

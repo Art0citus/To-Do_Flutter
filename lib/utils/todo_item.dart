@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class TodoItem extends StatelessWidget {
 
@@ -8,14 +9,29 @@ class TodoItem extends StatelessWidget {
   final String todoText;
 
   final Function(bool?)? onChanged;
+  final Function(BuildContext)? onPressed;
 
-  const TodoItem({super.key, required this.isChecked, required this.onChanged, required this.todoText});
+  const TodoItem({super.key,
+   required this.isChecked,
+   required this.onChanged,
+   required this.todoText,
+   required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return  Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
+      child:  Slidable(
+        endActionPane: ActionPane(
+          motion: const StretchMotion(),
+        children: [SlidableAction(onPressed: onPressed,
+        icon: Icons.delete,
+        backgroundColor: Colors.red
+        ,
+        borderRadius: BorderRadius.circular(12),) 
+        ]
+        ),
+        child: Container(
         padding:  EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 96, 50, 175),
@@ -30,13 +46,14 @@ class TodoItem extends StatelessWidget {
               TextDecoration.lineThrough
               : TextDecoration.none,
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
               )
             ),
           ],
         ),
       ),
-    );
+    ),
+   );
   }
 }

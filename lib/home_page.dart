@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/database/database.dart';
 import 'package:todo_list/utils/dialog_box.dart';
 import 'package:todo_list/utils/todo_item.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -13,20 +16,42 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final _controller = TextEditingController();
   
-  List TodoList = [
-    ["TODO", false],
-    ["TODO", false],
-    ["TODO", false],
-    ["TODO", false],
-    ["TODO", false],
-  ];
-    
+  final _myBox = Hive.box('mybox');
+  TodoDataBase db = TodoDataBase();
+
+  @override
+  void initState(){
+    if(_myBox.get("TODOLIST") == null){
+      db.createData();
+
+    } else {
+      db.loadData();
+    }
+
+    super.initState();
+  }
+
+    void deleteTask(int index){
+      setState(() {
+        db.TodoList.removeAt(index);
+      });
+      db.updateDataBase();
+    }
+
+
+    void markAsDone(int index) {
+      setState(() {
+        db.TodoList[index][1] = !db.TodoList[index][1];
+        db.updateDataBase();
+      });
+    }
 
     void checkBoxChanged(bool? value, int index){
       setState(() {
-        TodoList[index][1] = !TodoList[index][1];
+        db.TodoList[index][1] = !db.TodoList[index][1];
       }
       );
+      db.updateDataBase();
     }
 
     void onChanged(bool? value){
@@ -37,10 +62,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     void saveNewTask(){
       setState(() {
-        TodoList.add([_controller.text, false]);
+        db.TodoList.add([_controller.text, false]);
         _controller.clear();
         Navigator.of(context).pop();
       });
+      db.updateDataBase();
     }
 
     void createNewTask(){
@@ -60,19 +86,24 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 195, 162, 251),
       appBar: AppBar(
-        title: Text("To Do"),
+        title: Text("To Do", style: TextStyle(
+          color: Colors.white
+        ),),
         backgroundColor: Colors.deepPurple,
         elevation: 10,
       ),
-      floatingActionButton: FloatingActionButton(onPressed: createNewTask, child: Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(onPressed: createNewTask, 
+      backgroundColor: const Color.fromARGB(255, 139, 89, 195),
+      child: Icon(Icons.add, color: Colors.white,),
       ),
       body: ListView.builder(
-        itemCount: TodoList.length,
+        itemCount: db.TodoList.length,
         itemBuilder: (context, index){
           return TodoItem(
-            isChecked: TodoList[index][1],
+            isChecked: db.TodoList[index][1],
             onChanged: (value) => checkBoxChanged(value, index),
-            todoText: TodoList[index][0]);
+            todoText: db.TodoList[index][0],
+            onPressed: (context) => deleteTask(index));
         }
         )
       );
